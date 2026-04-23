@@ -487,27 +487,10 @@
       </div>
     </section>
 
-    <section class="panel glass-card">
-      <div class="panel-header panel-header-stack">
-        <div>
-          <h2 class="panel-title" data-i18n="settings.language.title">Language</h2>
-          <p class="panel-subtitle" data-i18n="settings.language.subtitle">English is the default app language. Search and choose the language you want to use across the app.</p>
-        </div>
-        <span class="topbar-badge" id="languageCurrentBadge">English</span>
-      </div>
-      <div class="form-grid">
-        <div class="search-wrap">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" id="settingLanguageSearch" class="search-input" placeholder="Search language..." data-i18n-placeholder="settings.language.search" />
-        </div>
-        <input type="hidden" id="settingLanguage" value="he" />
-        <div class="language-list" id="languageOptionsList"></div>
-        <p class="settings-note" data-i18n="settings.language.note">Language changes apply immediately.</p>
-      </div>
-    </section>
+    <input type="hidden" id="settingLanguage" value="he" />
+    <input type="hidden" id="settingLanguageSearch" value="" />
+    <div id="languageCurrentBadge" hidden></div>
+    <div id="languageOptionsList" hidden></div>
 
     <section class="panel glass-card">
       <div class="panel-header panel-header-stack">

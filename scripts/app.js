@@ -106,17 +106,16 @@ state = {
   access: sanitizeAccessState(state.access || createDefaultAccessState()),
 };
 
-if (!state.settings?.language) {
-  state = {
-    ...state,
-    settings: {
-      ...(state.settings || {}),
-      language: DEFAULT_LANGUAGE,
-    },
-  };
-}
+// Language is locked to Hebrew
+state = {
+  ...state,
+  settings: {
+    ...(state.settings || {}),
+    language: DEFAULT_LANGUAGE,
+  },
+};
 
-applyLanguage(state.settings?.language || DEFAULT_LANGUAGE);
+applyLanguage(DEFAULT_LANGUAGE);
 
 function getCalculatedTargetsFromSettings(settings) {
   const result = calculateTarget({
@@ -783,7 +782,7 @@ function showUpdateBanner(worker) {
 
 function applySettingsToUI() {
   document.body.dataset.animations = state.settings?.animations || 'full';
-  applyLanguage(state.settings?.language || DEFAULT_LANGUAGE);
+  applyLanguage(DEFAULT_LANGUAGE);
 }
 
 function formatAccessDate(value) {
@@ -1293,7 +1292,7 @@ function getSettingsInputs() {
   return sanitizeSettings({
     ...current,
     defaultScreen: document.getElementById('settingDefaultScreen')?.value || 'home',
-    language: document.getElementById('settingLanguage')?.value || current.language || DEFAULT_LANGUAGE,
+    language: DEFAULT_LANGUAGE,
     launchIntro: Boolean(document.getElementById('settingLaunchIntro')?.checked),
     animations: document.getElementById('settingAnimations')?.value || 'full',
     reminderEnabled: Boolean(document.getElementById('settingReminderEnabled')?.checked),
