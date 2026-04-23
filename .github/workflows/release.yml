@@ -1,0 +1,63 @@
+name: Release — Build & Upload APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-apk:
+    name: Build Android APK and create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: |
+          VERSION=${GITHUB_REF_NAME}
+          cp android/app/build/outputs/apk/debug/app-debug.apk proteinflow-${VERSION}.apk
+          echo "APK_PATH=proteinflow-${VERSION}.apk" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "ProteinFlow ${{ env.VERSION }}"
+          files: ${{ env.APK_PATH }}
+          body: |
+            ## ProteinFlow ${{ env.VERSION }}
+
+            ### התקנה
+            1. הורד את קובץ ה-APK
+            2. פתח אותו בטלפון האנדרואיד
+            3. אשר התקנה ממקורות לא ידועים אם נדרש
+
+            > גרסת Debug — לשימוש אישי
+          draft: false
+          prerelease: false
