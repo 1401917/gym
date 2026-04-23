@@ -1,0 +1,16 @@
+export const quickFoods = [
+  { nameKey: 'food.quick.chicken150', protein: 45, calories: 300 },
+  { nameKey: 'food.quick.tunaWater', protein: 28, calories: 160 },
+  { nameKey: 'food.quick.greekYogurt', protein: 20, calories: 140 },
+  { nameKey: 'food.quick.cottage5', protein: 15, calories: 120 },
+  { nameKey: 'food.quick.twoEggs', protein: 12, calories: 150 },
+  { nameKey: 'food.quick.proteinPowder', protein: 24, calories: 120 },
+  { nameKey: 'food.quick.salmon150', protein: 32, calories: 280 },
+  { nameKey: 'food.quick.edamame', protein: 17, calories: 190 },
+  { nameKey: 'food.quick.proteinWrap', protein: 18, calories: 210 },
+  { nameKey: 'food.quick.yogurtShake', protein: 26, calories: 230 },
+  { nameKey: 'food.quick.tunaToast', protein: 24, calories: 260 },
+  { nameKey: 'food.quick.chickenSalad', protein: 34, calories: 310 },
+  { nameKey: 'food.quick.riceChicken', protein: 38, calories: 430 },
+  { nameKey: 'food.quick.yogurtGranola', protein: 18, calories: 260 },
+];

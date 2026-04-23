@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Local tools (JDK, Android SDK installed locally)
+.local-tools/
+
+# Claude Code settings
+.claude/
+
+# Android build artifacts
+android/app/build/
+android/.gradle/
+android/build/
+*.apk
+*.aab
+*.keystore
+
+# Capacitor generated web assets (synced from root)
+www/
+
+# Build logs
+build_apk_log.txt
+build_log.txt
+*.log
+
+# Build artifacts folder
+artifacts/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Environment / secrets
+.env
+.env.local
+*.secret

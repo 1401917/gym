@@ -1,0 +1,16 @@
+# Auto-detect text files and normalize line endings to LF in repo
+* text=auto eol=lf
+
+# Android gradle scripts stay LF
+*.gradle text eol=lf
+gradlew text eol=lf
+
+# Binary files — no conversion
+*.apk binary
+*.aab binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.keystore binary
+*.jks binary

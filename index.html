@@ -1,0 +1,777 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="description" content="מעקב חכם לחלבון, קלוריות ויעדים יומיים" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self';">
+  <title>כושר ובריאות</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icons/icon-192.png" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css?v=16" />
+</head>
+<body>
+  <div class="launch-screen" id="launchScreen">
+    <div class="launch-bg launch-bg-a"></div>
+    <div class="launch-bg launch-bg-b"></div>
+    <div class="launch-card">
+      <div class="launch-logo">
+        <div class="launch-logo-core">P</div>
+        <div class="launch-orbit orbit-one"></div>
+        <div class="launch-orbit orbit-two"></div>
+      </div>
+      <div class="launch-copy">
+        <p class="launch-kicker" data-i18n="launch.kicker">Fit Health</p>
+        <h1 class="launch-title" data-i18n="launch.title">Start the day strong</h1>
+        <p class="launch-subtitle" id="launchStatus">Loading your app...</p>
+      </div>
+      <div class="launch-meter">
+        <div class="launch-meter-bar" id="launchProgressBar"></div>
+      </div>
+      <div class="launch-pills">
+        <span class="launch-pill" data-i18n="launch.pill.protein">Protein</span>
+        <span class="launch-pill" data-i18n="launch.pill.calories">Calories</span>
+        <span class="launch-pill" data-i18n="launch.pill.goals">Targets</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="side-nav-backdrop" id="navDrawerBackdrop" type="button" data-i18n-aria-label="nav.closeMenu"></button>
+  <div class="drawer-swipe-zone" id="drawerSwipeZone" aria-hidden="true"></div>
+
+  <nav class="side-nav" id="appDrawer">
+    <div class="side-nav-header">
+      <div class="side-nav-brand">
+        <div class="brand-mark">
+          <span>P</span>
+        </div>
+        <div class="brand-copy">
+          <strong data-i18n="brand.primary">Fitness</strong>
+          <span data-i18n="brand.secondary">Health</span>
+        </div>
+      </div>
+
+      <button class="side-nav-close" id="navDrawerCloseBtn" type="button" data-i18n-title="nav.closeMenu" data-i18n-aria-label="nav.closeMenu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="side-nav-items">
+      <button class="nav-item active" data-screen="home" onclick="window.router.go('home')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span class="nav-label" data-i18n="nav.home">Home</span>
+      </button>
+
+      <button class="nav-item" data-screen="calc" onclick="window.router.go('calc')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="3"/>
+          <line x1="8" y1="7" x2="16" y2="7"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+          <line x1="8" y1="17" x2="12" y2="17"/>
+        </svg>
+        <span class="nav-label" data-i18n="nav.calc">Journal</span>
+      </button>
+
+      <button class="nav-item" data-screen="stats" onclick="window.router.go('stats')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        <span class="nav-label" data-i18n="nav.stats">Stats</span>
+      </button>
+
+      <button class="nav-item" data-screen="goals" onclick="window.router.go('goals')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <circle cx="12" cy="12" r="5"/>
+          <circle cx="12" cy="12" r="1.5"/>
+        </svg>
+        <span class="nav-label" data-i18n="nav.goals">Goals</span>
+      </button>
+
+      <button class="nav-item" data-screen="ai" onclick="window.router.go('ai')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span class="nav-label" data-i18n="nav.ai">AI</span>
+      </button>
+
+      <button class="nav-item" data-screen="settings" onclick="window.router.go('settings')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span class="nav-label" data-i18n="nav.settings">Settings</span>
+      </button>
+    </div>
+
+    <button class="install-btn" id="installBtn" hidden data-i18n="install.button">Install</button>
+  </nav>
+
+  <header class="topbar">
+    <div>
+      <p class="topbar-kicker" data-i18n="topbar.kicker">Your day</p>
+      <span class="topbar-title" id="screenTitle">Home</span>
+    </div>
+    <div class="topbar-side">
+      <span class="topbar-badge" id="todayLabel"></span>
+    </div>
+  </header>
+
+  <div class="update-banner" id="updateBanner" hidden>
+    <span data-i18n="update.banner">A new version is available. You can update now.</span>
+    <button class="update-btn" id="updateBtn" data-i18n="update.button">Update</button>
+  </div>
+
+  <main class="screen active" id="screen-home">
+    <section class="hero-panel hero-panel-compact glass-card">
+      <div class="hero-copy">
+        <span class="hero-chip" data-i18n="home.heroChip">Fitness</span>
+        <h1 class="hero-title" data-i18n="home.title">שלום ספורטאי</h1>
+        <p class="hero-subtitle" id="homeMotivation">Set manual protein and calorie targets to see cleaner progress on the home screen.</p>
+        <div class="hero-marketing-callout">
+          <span class="hero-marketing-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="2.5" width="16" height="19" rx="3"></rect>
+              <line x1="8" y1="7.5" x2="16" y2="7.5"></line>
+              <line x1="8" y1="12" x2="12" y2="12"></line>
+              <line x1="14" y1="12" x2="16" y2="12"></line>
+              <line x1="8" y1="16.5" x2="11" y2="16.5"></line>
+            </svg>
+          </span>
+          <strong data-i18n="home.calculatorBadge">Daily protein and calorie calculator</strong>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-primary btn-large" onclick="document.getElementById('quickAddModal').classList.add('open')" data-i18n="home.addFood">Add food</button>
+        </div>
+      </div>
+
+      <div class="hero-progress hero-progress-grid">
+        <article class="hero-progress-card">
+          <div class="hero-ring-card">
+            <svg class="ring-svg" viewBox="0 0 100 100" width="128" height="128">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10"></circle>
+              <circle
+                cx="50"
+                cy="50"
+                r="42"
+                fill="none"
+                stroke="#67e8f9"
+                stroke-width="10"
+                stroke-dasharray="263.9"
+                stroke-dashoffset="263.9"
+                stroke-linecap="round"
+                style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .7s ease"
+                id="homeProteinRingCircle"
+              ></circle>
+            </svg>
+            <div class="hero-ring-center">
+              <strong id="homeProteinRingPct">0%</strong>
+              <span data-i18n="home.ringProteinLabel">Protein target</span>
+            </div>
+          </div>
+          <div class="hero-progress-copy">
+            <strong id="homeProteinRingValue">0g</strong>
+            <span id="homeProteinRingMeta">Set a manual protein target</span>
+            <div class="hero-progress-meter" aria-hidden="true">
+              <span class="hero-progress-meter-fill hero-progress-meter-fill-protein" id="homeProteinMeter"></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="hero-progress-card">
+          <div class="hero-ring-card">
+            <svg class="ring-svg" viewBox="0 0 100 100" width="128" height="128">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10"></circle>
+              <circle
+                cx="50"
+                cy="50"
+                r="42"
+                fill="none"
+                stroke="#fdba74"
+                stroke-width="10"
+                stroke-dasharray="263.9"
+                stroke-dashoffset="263.9"
+                stroke-linecap="round"
+                style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .7s ease"
+                id="homeCalorieRingCircle"
+              ></circle>
+            </svg>
+            <div class="hero-ring-center">
+              <strong id="homeCalorieRingPct">0%</strong>
+              <span data-i18n="home.ringCalorieLabel">Calorie target</span>
+            </div>
+          </div>
+          <div class="hero-progress-copy">
+            <strong id="homeCalorieRingValue">0</strong>
+            <span id="homeCalorieRingMeta">Set a manual calorie target</span>
+            <div class="hero-progress-meter" aria-hidden="true">
+              <span class="hero-progress-meter-fill hero-progress-meter-fill-calorie" id="homeCalorieMeter"></span>
+            </div>
+          </div>
+        </article>
+
+        <div class="streak-pill" id="streakLabel">Streak: 0 days</div>
+      </div>
+    </section>
+
+    <section class="panel glass-card home-log-panel">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title" data-i18n="home.totalMealsTitle">Total meals today</h2>
+          <p class="panel-subtitle" data-i18n="home.totalMealsSubtitle">A clean list of the meals already logged today.</p>
+        </div>
+        <span class="topbar-badge" id="homeMealsBadge">0 meals</span>
+      </div>
+      <ul class="log-list" id="homeLogList">
+        <li class="empty-log" data-i18n="home.emptyLog">No foods added yet. Tap Add food to get started.</li>
+      </ul>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="quickAddModal" onclick="if (event.target === this) this.classList.remove('open')">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="food.addTitle">Add food</h3>
+        <button class="modal-close" onclick="document.getElementById('quickAddModal').classList.remove('open')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <section class="modal-block">
+        <div class="section-header-inline">
+          <div>
+            <h4 class="section-title" data-i18n="food.detailedAddTitle">Detailed add</h4>
+            <p class="section-subtitle" data-i18n="food.detailedAddSubtitle">Enter the name, protein, and calories exactly how you want.</p>
+          </div>
+        </div>
+        <div class="modal-manual-form">
+          <input type="text" id="modalFoodName" class="form-input" placeholder="Food name" data-i18n-placeholder="food.namePlaceholder" />
+          <div class="modal-row2">
+            <input type="number" id="modalFoodProtein" class="form-input" placeholder="Protein (g)" min="0" data-i18n-placeholder="food.proteinPlaceholder" />
+            <input type="number" id="modalFoodCalories" class="form-input" placeholder="Calories" min="0" data-i18n-placeholder="food.caloriesPlaceholder" />
+          </div>
+          <button class="btn-primary" id="modalAddBtn" data-i18n="food.addButton">Add food</button>
+        </div>
+      </section>
+
+      <section class="modal-block">
+        <div class="section-header-inline">
+          <div>
+            <h4 class="section-title" id="foodPhotoScanTitle">AI food scan</h4>
+            <p class="section-subtitle" id="foodPhotoScanSubtitle">Take or choose a food photo and the AI will identify the meal, ingredients, calories and protein.</p>
+          </div>
+        </div>
+        <div class="food-photo-stack">
+          <input type="password" id="geminiApiKeyInput" class="form-input" placeholder="Gemini API Key (free)" autocomplete="off" />
+          <p class="food-photo-key-note" id="foodPhotoKeyNote">Free key from <strong>ai.google.dev</strong> — stored only on this device. Leave empty to use the built-in key.</p>
+          <label class="btn-secondary food-photo-picker" id="foodPhotoPickerLabel" for="foodPhotoInput">Take or choose a photo</label>
+          <input type="file" id="foodPhotoInput" accept="image/*" capture="environment" hidden />
+          <img class="food-photo-preview" id="foodPhotoPreview" hidden alt="Food preview" />
+          <button class="btn-primary" id="analyzeFoodPhotoBtn" type="button">Scan food with AI</button>
+          <p class="food-photo-status" id="foodPhotoStatus">Upload a food photo and the app will identify the meal, ingredients, calories and protein before asking to add it.</p>
+          <div class="food-scan-result" id="foodScanResult" hidden>
+            <div class="food-scan-result-name" id="foodScanResultName"></div>
+            <div class="food-scan-result-macros" id="foodScanResultMacros"></div>
+            <div class="food-scan-ingredients" id="foodScanIngredients" hidden>
+              <div class="food-scan-ingredients-label" id="foodScanIngredientsLabel">Ingredients</div>
+              <div class="food-scan-ingredient-tags" id="foodScanIngredientTags"></div>
+            </div>
+            <div class="food-scan-notes" id="foodScanNotes" hidden></div>
+            <div class="food-scan-actions">
+              <button class="btn-primary food-scan-confirm-btn" id="foodScanConfirmBtn" type="button">Add to log</button>
+              <button class="btn-secondary food-scan-edit-btn" id="foodScanEditBtn" type="button">Edit manually</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="modal-divider" data-i18n="food.readyFoods">Or choose a ready food</div>
+
+      <section class="modal-block">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="modalSearchInput" class="search-input" placeholder="Search ready foods..." data-i18n-placeholder="food.searchPlaceholder" />
+        </div>
+        <div class="quick-grid" id="modalQuickGrid"></div>
+      </section>
+    </div>
+  </div>
+
+  <main class="screen" id="screen-calc">
+    <section class="hero-strip glass-card journal-hero">
+      <div>
+        <span class="hero-chip" data-i18n="journal.heroChip">Monthly view</span>
+        <h2 class="panel-title panel-title-light" data-i18n="journal.title">Journal by date</h2>
+        <p class="hero-strip-text" data-i18n="journal.subtitle">Choose a day to see how much protein and how many calories were consumed on that date.</p>
+      </div>
+    </section>
+
+    <section class="panel glass-card">
+      <div class="calendar-toolbar">
+        <button class="btn-secondary calendar-nav-btn" id="calendarPrevBtn" type="button" data-i18n="journal.prevMonth">Previous month</button>
+        <div class="calendar-head-copy">
+          <h2 class="panel-title" id="calendarMonthLabel">Current month</h2>
+          <p class="panel-subtitle" data-i18n="journal.panelSubtitle">A clean journal with daily details on tap.</p>
+        </div>
+        <div class="calendar-toolbar-actions">
+          <button class="btn-secondary calendar-nav-btn" id="calendarTodayBtn" type="button" data-i18n="journal.today">Today</button>
+          <button class="btn-secondary calendar-nav-btn" id="calendarNextBtn" type="button" data-i18n="journal.nextMonth">Next month</button>
+        </div>
+      </div>
+
+      <div class="calendar-weekdays">
+        <span data-weekday="0">Sun</span>
+        <span data-weekday="1">Mon</span>
+        <span data-weekday="2">Tue</span>
+        <span data-weekday="3">Wed</span>
+        <span data-weekday="4">Thu</span>
+        <span data-weekday="5">Fri</span>
+        <span data-weekday="6">Sat</span>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </section>
+  </main>
+
+  <main class="screen" id="screen-stats">
+    <section class="hero-strip glass-card">
+      <div>
+        <span class="hero-chip" data-i18n="stats.heroChip">Info</span>
+        <h2 class="panel-title panel-title-light" data-i18n="stats.title">Smart statistics</h2>
+        <p class="hero-strip-text" id="statsTargetSummary">Start logging foods and set manual targets to see real trends through the week.</p>
+      </div>
+    </section>
+
+    <section class="stats-overview-grid">
+      <article class="glass-card data-card">
+        <span class="data-label" data-i18n="stats.avgProtein">Average protein</span>
+        <strong class="data-value" id="statsAverageProtein">0g</strong>
+      </article>
+      <article class="glass-card data-card">
+        <span class="data-label" data-i18n="stats.avgCalories">Average calories</span>
+        <strong class="data-value" id="statsAverageCalories">0</strong>
+      </article>
+      <article class="glass-card data-card">
+        <span class="data-label" data-i18n="stats.bestDay">Strongest day</span>
+        <strong class="data-value" id="statsBestDay">—</strong>
+      </article>
+      <article class="glass-card data-card">
+        <span class="data-label" data-i18n="stats.completion">Target completion</span>
+        <strong class="data-value" id="statsCompletion">0%</strong>
+      </article>
+    </section>
+
+    <section class="stats-charts-grid">
+      <article class="panel glass-card chart-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="stats.proteinChart">Protein chart</h2>
+          <span class="topbar-badge" data-i18n="stats.sevenDays">7 days</span>
+        </div>
+        <div class="chart-bars" id="statsProteinChart"></div>
+      </article>
+
+      <article class="panel glass-card chart-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="stats.caloriesChart">Calories chart</h2>
+          <span class="topbar-badge" data-i18n="stats.sevenDays">7 days</span>
+        </div>
+        <div class="chart-bars" id="statsCaloriesChart"></div>
+      </article>
+    </section>
+
+    <section class="panel glass-card">
+      <div class="panel-header">
+        <h2 class="panel-title" data-i18n="stats.historyTitle">Recent history</h2>
+        <span class="topbar-badge" data-i18n="stats.sevenDays">7 days</span>
+      </div>
+      <div class="history-list" id="statsHistoryList"></div>
+    </section>
+  </main>
+
+  <main class="screen" id="screen-goals">
+    <section class="panel glass-card">
+      <div class="panel-header panel-header-stack">
+        <div>
+          <h2 class="panel-title" data-i18n="goals.title">Recommended from your data</h2>
+          <p class="panel-subtitle" data-i18n="goals.subtitle">Use the personal details saved in Settings to get a smart recommendation and review your manual-target progress here.</p>
+        </div>
+        <span class="topbar-badge" id="goalSummaryBadge">Recommendation only</span>
+      </div>
+
+      <div class="form-grid">
+        <div class="goals-settings-bridge">
+          <div class="goals-settings-copy">
+            <strong data-i18n="goals.profileManagedTitle">Personal details and manual targets are managed in Settings</strong>
+            <p class="panel-subtitle goals-settings-summary" id="goalsProfileSummary">Add age, height, weight, goal, activity, and manual targets in Settings to get a recommendation here.</p>
+          </div>
+          <button class="btn-secondary goals-settings-btn" type="button" onclick="window.router.go('settings')" data-i18n="goals.openSettings">Open settings</button>
+        </div>
+
+        <div class="goals-btn-row goals-btn-row-single">
+          <button class="btn-ai-goals" id="aiGoalBtn" data-i18n="goals.aiButton">AI recommendation</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="goals-summary" id="goalsSummary" style="display:none">
+      <div class="goal-stat-card card-blue">
+        <span class="gsc-val" id="gscDaily">—</span>
+        <span class="gsc-lbl" data-i18n="goals.summaryProtein">Protein target</span>
+      </div>
+      <div class="goal-stat-card card-orange">
+        <span class="gsc-val" id="gscCalories">—</span>
+        <span class="gsc-lbl" data-i18n="goals.summaryCalories">Calorie target</span>
+      </div>
+    </div>
+
+    <section class="panel glass-card recommendation-panel" id="aiGoalResult" style="display:none">
+      <div class="panel-header">
+        <h2 class="panel-title" data-i18n="goals.recommendationTitle">Recommended</h2>
+        <span class="topbar-badge" data-i18n="goals.recommendationBadge">Recommendation only</span>
+      </div>
+      <div class="ai-goal-text" id="aiGoalText"></div>
+    </section>
+
+    <section class="panel glass-card">
+      <h2 class="panel-title" data-i18n="goals.progressTitle">Progress vs. preset target</h2>
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span id="goalsSumText">0g protein consumed today</span>
+          <span id="goalsPctText">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="goalsBar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="insights-row" id="goalsInsights"></div>
+    </section>
+  </main>
+
+  <main class="screen" id="screen-ai">
+    <div class="chat-wrap">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-bubble bot-bubble">
+          <span data-i18n="ai.welcome">Hi, I am your local assistant for nutrition, protein, calories, and daily planning. Ask me about foods, protein, calories, and goals.</span>
+        </div>
+      </div>
+      <div class="chat-suggestions" id="chatSuggestions"></div>
+      <p class="chat-choice-note" data-i18n="ai.choiceNote">Choose a ready option to continue the conversation.</p>
+    </div>
+  </main>
+
+  <main class="screen" id="screen-settings">
+    <section class="hero-strip hero-strip-settings glass-card">
+      <div>
+        <span class="hero-chip" data-i18n="settings.heroChip">Personalize</span>
+        <h2 class="panel-title panel-title-light" data-i18n="settings.title">App settings</h2>
+        <p class="hero-strip-text" data-i18n="settings.subtitle">Choose the app language, tune the startup experience, and manage the personal details and manual targets used across the app.</p>
+      </div>
+    </section>
+
+    <section class="panel glass-card">
+      <div class="panel-header panel-header-stack">
+        <div>
+          <h2 class="panel-title" data-i18n="settings.language.title">Language</h2>
+          <p class="panel-subtitle" data-i18n="settings.language.subtitle">English is the default app language. Search and choose the language you want to use across the app.</p>
+        </div>
+        <span class="topbar-badge" id="languageCurrentBadge">English</span>
+      </div>
+      <div class="form-grid">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="settingLanguageSearch" class="search-input" placeholder="Search language..." data-i18n-placeholder="settings.language.search" />
+        </div>
+        <input type="hidden" id="settingLanguage" value="he" />
+        <div class="language-list" id="languageOptionsList"></div>
+        <p class="settings-note" data-i18n="settings.language.note">Language changes apply immediately.</p>
+      </div>
+    </section>
+
+    <section class="panel glass-card">
+      <div class="panel-header panel-header-stack">
+        <div>
+          <h2 class="panel-title" data-i18n="settings.profileTitle">Personal details for recommendations</h2>
+          <p class="panel-subtitle" data-i18n="settings.profileSubtitle">These values are used for the recommendation in the Goals screen and stay stored locally on your device.</p>
+        </div>
+        <span class="topbar-badge" data-i18n="settings.profileBadge">Used in Goals</span>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-row2">
+          <div class="form-group">
+            <label class="form-label" data-i18n="goals.gender">Gender</label>
+            <select id="settingGoalGender" class="form-input form-select">
+              <option value="male" data-i18n="gender.male">Male</option>
+              <option value="female" data-i18n="gender.female">Female</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="goals.age">Age</label>
+            <input type="number" id="settingGoalAge" class="form-input" placeholder="25" min="10" max="100" />
+          </div>
+        </div>
+
+        <div class="form-row2">
+          <div class="form-group">
+            <label class="form-label" data-i18n="goals.height">Height (cm)</label>
+            <input type="number" id="settingGoalHeight" class="form-input" placeholder="175" min="100" max="250" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="goals.weight">Weight (kg)</label>
+            <input type="number" id="settingGoalWeight" class="form-input" placeholder="75" min="30" max="250" />
+          </div>
+        </div>
+
+        <div class="form-row2">
+          <div class="form-group">
+            <label class="form-label" data-i18n="goals.goal">Goal</label>
+            <select id="settingGoalType" class="form-input form-select">
+              <option value="maintain" data-i18n="goal.maintain">Maintain weight</option>
+              <option value="lose" data-i18n="goal.lose">Lose weight</option>
+              <option value="gain" data-i18n="goal.gain">Gain muscle</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="goals.targetWeight">Target weight (kg)</label>
+            <input type="number" id="settingGoalTargetWeight" class="form-input" placeholder="70" min="30" max="250" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="goals.activity">Activity level</label>
+          <select id="settingGoalActivity" class="form-input form-select">
+            <option value="sedentary" data-i18n="activity.sedentary">Sedentary</option>
+            <option value="moderate" selected data-i18n="activity.moderate">Moderate</option>
+            <option value="active" data-i18n="activity.active">Active</option>
+            <option value="athlete" data-i18n="activity.athlete">Athlete</option>
+          </select>
+        </div>
+
+        <p class="settings-note" data-i18n="settings.profileNote">This information stays only on your device and is used to prepare the recommendation.</p>
+      </div>
+    </section>
+
+    <section class="panel glass-card">
+      <h2 class="panel-title" data-i18n="settings.experienceTitle">App experience</h2>
+      <div class="form-grid">
+        <div class="form-row2">
+          <div class="form-group">
+            <label class="form-label" data-i18n="settings.defaultScreen">Default screen</label>
+            <select id="settingDefaultScreen" class="form-input form-select">
+              <option value="home" data-i18n="screens.home">Home</option>
+              <option value="calc" data-i18n="screens.calc">Journal</option>
+              <option value="stats" data-i18n="screens.stats">Statistics</option>
+              <option value="goals" data-i18n="screens.goals">Goals</option>
+              <option value="ai">AI</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="settings.animations">Animation level</label>
+            <select id="settingAnimations" class="form-input form-select">
+              <option value="full" data-i18n="settings.animations.full">Full</option>
+              <option value="reduced" data-i18n="settings.animations.reduced">Reduced</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="toggle-card">
+            <input type="checkbox" id="settingLaunchIntro" />
+            <span class="toggle-indicator"></span>
+            <span>
+              <strong data-i18n="settings.launchTitle">Show intro and update screen</strong>
+              <small data-i18n="settings.launchSubtitle">An immersive opening with update checks before entering the app.</small>
+            </span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel glass-card">
+      <h2 class="panel-title" data-i18n="settings.remindersTitle">Daily reminders</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="toggle-card">
+            <input type="checkbox" id="settingReminderEnabled" />
+            <span class="toggle-indicator"></span>
+            <span>
+              <strong data-i18n="settings.reminderToggleTitle">Enable daily reminder</strong>
+              <small data-i18n="settings.reminderToggleSubtitle">Get a daily reminder to log meals and stay close to your targets.</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="settingReminderTime" data-i18n="settings.reminderTime">Reminder time</label>
+          <input type="time" id="settingReminderTime" class="form-input" value="19:00" />
+        </div>
+
+        <p class="settings-note" id="reminderStatus" data-i18n="settings.reminderStatus.disabled">Daily reminders are currently turned off.</p>
+      </div>
+    </section>
+
+    <section class="panel glass-card">
+      <h2 class="panel-title" data-i18n="settings.resetTitle">Daily reset</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="settingResetMode" data-i18n="settings.resetMode">Reset mode</label>
+          <select id="settingResetMode" class="form-input form-select">
+            <option value="auto" data-i18n="settings.resetMode.auto">Automatic every day</option>
+            <option value="manual" data-i18n="settings.resetMode.manual">Manual only</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="settingResetTimeGroup">
+          <label class="form-label" for="settingResetTime" data-i18n="settings.resetTime">Automatic reset time</label>
+          <input type="time" id="settingResetTime" class="form-input" value="00:00" />
+        </div>
+
+        <button class="btn-secondary" id="resetTrackingDayBtn" type="button" data-i18n="settings.resetNow">Reset tracking day now</button>
+        <p class="settings-note" id="resetStatus" data-i18n="settings.resetStatus.auto">The active day resets automatically every day.</p>
+      </div>
+    </section>
+
+    <section class="panel glass-card">
+      <h2 class="panel-title" data-i18n="settings.manualTargetsTitle">Manual targets</h2>
+      <div class="form-grid">
+        <div class="form-row2">
+          <div class="form-group">
+            <label class="form-label" data-i18n="settings.dailyProtein">Daily protein target</label>
+            <input type="number" id="settingProteinGoal" class="form-input" placeholder="150" min="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="settings.dailyCalories">Daily calorie target</label>
+            <input type="number" id="settingCalorieGoal" class="form-input" placeholder="2200" min="0" />
+          </div>
+        </div>
+        <p class="settings-note" data-i18n="settings.manualTargetsNote">These are the values shown on the home screen against what you actually ate.</p>
+      </div>
+    </section>
+
+    <section class="panel glass-card">
+      <div class="panel-header panel-header-stack">
+        <div>
+          <h2 class="panel-title" data-i18n="membership.title">Membership & access</h2>
+          <p class="panel-subtitle" id="membershipStatusText" data-i18n="membership.status.checking">Checking subscription status...</p>
+        </div>
+        <span class="topbar-badge" id="membershipStatusBadge" data-i18n="membership.badge.checking">Checking</span>
+      </div>
+
+      <div class="membership-actions">
+        <button class="btn-primary" id="settingsPurchaseSubscriptionBtn" data-i18n="membership.cta.subscribe">Start free trial</button>
+        <button class="btn-secondary" id="settingsRestorePurchasesBtn" data-i18n="membership.cta.restore">Restore purchase</button>
+        <button class="btn-secondary" id="manageSubscriptionBtn" hidden data-i18n="membership.cta.manage">Manage subscription</button>
+      </div>
+
+      <p class="settings-note" id="membershipDetailNote" data-i18n="membership.note.locked">The app stays unlocked only while there is an active store subscription, trial, or approved early-access number.</p>
+
+      <div class="membership-links">
+        <a class="btn-secondary button-link" id="membershipPrivacyLink" href="legal/privacy.html" target="_blank" rel="noreferrer" data-i18n="legal.privacy">Privacy policy</a>
+        <a class="btn-secondary button-link" id="membershipTermsLink" href="legal/terms.html" target="_blank" rel="noreferrer" data-i18n="legal.terms">Terms of use</a>
+      </div>
+    </section>
+
+    <section class="panel glass-card">
+      <div class="settings-actions">
+        <button class="btn-primary" id="saveSettingsBtn" data-i18n="settings.save">Save settings</button>
+        <button class="btn-secondary" id="resetSettingsBtn" data-i18n="settings.reset">Reset to default</button>
+      </div>
+      <p class="settings-status" id="settingsStatus" data-i18n="settings.status.default">Settings are stored locally on your device.</p>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="dayDetailModal" onclick="if (event.target === this) this.classList.remove('open')">
+    <div class="modal-sheet modal-sheet-small">
+      <div class="modal-header">
+        <h3 class="modal-title" id="dayDetailTitle" data-i18n="dayDetail.defaultTitle">Day details</h3>
+        <button class="modal-close" onclick="document.getElementById('dayDetailModal').classList.remove('open')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="day-detail-grid">
+        <article class="day-detail-card">
+          <span class="mini-label" data-i18n="common.protein">Protein</span>
+          <strong class="mini-value" id="dayDetailProtein">0g</strong>
+        </article>
+        <article class="day-detail-card day-detail-card-orange">
+          <span class="mini-label" data-i18n="common.calories">Calories</span>
+          <strong class="mini-value" id="dayDetailCalories">0</strong>
+        </article>
+      </div>
+
+      <p class="day-detail-note" id="dayDetailNote">There is no saved data for this date.</p>
+
+      <div class="day-detail-actions">
+        <button class="btn-secondary" id="dayDetailMealsToggleBtn" type="button" data-i18n="dayDetail.showMeals">Show meals consumed that day</button>
+      </div>
+
+      <section class="day-detail-meals" id="dayDetailMealsSection" hidden>
+        <div class="day-detail-meals-list" id="dayDetailMealsList"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="access-gate" id="accessGate" hidden>
+    <div class="access-card">
+      <span class="hero-chip access-chip" data-i18n="membership.lockedChip">Premium access</span>
+      <h2 class="access-title" data-i18n="membership.lockedTitle">Unlock the app</h2>
+      <p class="access-subtitle" id="accessStatusText" data-i18n="membership.lockedSubtitle">Use the standard Apple or Google subscription flow to unlock the app on this device.</p>
+
+      <div class="access-price-row">
+        <div>
+          <strong class="access-price" id="accessPriceLabel" data-i18n="membership.price.monthly">$9 / month</strong>
+          <span class="access-trial" id="accessTrialLabel" data-i18n="membership.trial.default">30-day free trial for eligible new subscribers</span>
+        </div>
+        <span class="topbar-badge" id="accessStatusBadge" data-i18n="membership.badge.locked">Locked</span>
+      </div>
+
+      <ul class="access-highlights">
+        <li data-i18n="membership.highlight.protein">Full protein and calorie tracker</li>
+        <li data-i18n="membership.highlight.reminders">Daily reminders and saved history</li>
+        <li data-i18n="membership.highlight.restore">Restore purchases through Apple or Google</li>
+      </ul>
+
+      <div class="access-actions">
+        <button class="btn-primary" id="purchaseSubscriptionBtn" data-i18n="membership.cta.subscribe">Start free trial</button>
+        <button class="btn-secondary" id="restorePurchasesBtn" data-i18n="membership.cta.restore">Restore purchase</button>
+      </div>
+
+      <div class="access-links">
+        <a class="btn-secondary button-link" id="accessPrivacyLink" href="legal/privacy.html" target="_blank" rel="noreferrer" data-i18n="legal.privacy">Privacy policy</a>
+        <a class="btn-secondary button-link" id="accessTermsLink" href="legal/terms.html" target="_blank" rel="noreferrer" data-i18n="legal.terms">Terms of use</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="capacitor.js"></script>
+  <script type="module" src="scripts/app.js?v=15"></script>
+</body>
+</html>

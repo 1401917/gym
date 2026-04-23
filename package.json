@@ -1,0 +1,22 @@
+{
+  "name": "gym",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "scripts": {
+    "sync:web": "node sync-web.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node scripts/validate-app.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/local-notifications": "^8.0.2",
+    "@revenuecat/purchases-capacitor": "^12.3.0"
+  }
+}

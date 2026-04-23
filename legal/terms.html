@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Terms of Use</title>
+  <link rel="stylesheet" href="../styles/main.css" />
+  <style>
+    body {
+      padding: 0;
+      min-height: 100vh;
+      display: block;
+    }
+
+    .legal-shell {
+      width: min(880px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    .legal-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    .legal-card h1,
+    .legal-card h2 {
+      font-family: 'Sora', sans-serif;
+      margin-bottom: 12px;
+    }
+
+    .legal-card h2 {
+      margin-top: 28px;
+    }
+
+    .legal-card p,
+    .legal-card li {
+      line-height: 1.8;
+      color: #334155;
+    }
+
+    .legal-card ul {
+      padding-left: 20px;
+    }
+
+    .legal-meta {
+      color: #64748b;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main class="legal-shell">
+    <section class="legal-card">
+      <p class="legal-meta">Last updated: March 25, 2026</p>
+      <h1>Terms of Use</h1>
+      <p>
+        These terms govern the use of this nutrition-tracking app. By using the app, you agree to these terms.
+      </p>
+
+      <h2>Subscription</h2>
+      <ul>
+        <li>The intended subscription plan is a monthly premium plan priced at 9 USD per month.</li>
+        <li>Eligible new subscribers should receive a 30-day free trial when the introductory offer is configured in Apple App Store and Google Play.</li>
+        <li>After the trial period ends, the subscription renews automatically unless canceled in the store before renewal.</li>
+        <li>Billing, renewals, cancellations, and refunds are handled by Apple App Store or Google Play under their store terms.</li>
+      </ul>
+
+      <h2>Access control</h2>
+      <ul>
+        <li>App access is intended to be available only when a subscription entitlement is active, a store trial is active, or a device is approved through early access.</li>
+        <li>Early access can be granted by including a phone number in <code>assets/early-access.json</code>. Removing that number from a later release is intended to revoke access.</li>
+        <li>Client-side protections reduce casual bypassing, but no mobile app can promise absolute resistance to tampering without server-side enforcement.</li>
+      </ul>
+
+      <h2>Health disclaimer</h2>
+      <p>
+        This app provides general nutrition and protein-tracking tools only. It is not medical advice, diagnosis,
+        or treatment. Users with health conditions, medication use, or special dietary needs should consult a
+        qualified professional.
+      </p>
+
+      <h2>Acceptable use</h2>
+      <ul>
+        <li>Users may not interfere with the app, attempt to abuse purchase flows, or misuse early-access credentials.</li>
+        <li>You are responsible for keeping any device-level credentials and store account credentials secure.</li>
+      </ul>
+
+      <h2>Changes</h2>
+      <p>
+        The app and these terms may change over time. Material pricing and subscription changes should also be
+        reflected in the relevant store listings and billing setup before release.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Replace this placeholder support address before release: <strong>support@example.com</strong>
+      </p>
+    </section>
+  </main>
+</body>
+</html>

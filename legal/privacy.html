@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Privacy Policy</title>
+  <link rel="stylesheet" href="../styles/main.css" />
+  <style>
+    body {
+      padding: 0;
+      min-height: 100vh;
+      display: block;
+    }
+
+    .legal-shell {
+      width: min(880px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    .legal-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    .legal-card h1,
+    .legal-card h2 {
+      font-family: 'Sora', sans-serif;
+      margin-bottom: 12px;
+    }
+
+    .legal-card h2 {
+      margin-top: 28px;
+    }
+
+    .legal-card p,
+    .legal-card li {
+      line-height: 1.8;
+      color: #334155;
+    }
+
+    .legal-card ul {
+      padding-left: 20px;
+    }
+
+    .legal-meta {
+      color: #64748b;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main class="legal-shell">
+    <section class="legal-card">
+      <p class="legal-meta">Last updated: March 25, 2026</p>
+      <h1>Privacy Policy</h1>
+      <p>
+        This app is a local-first nutrition tracker. It is designed to store meal logs, goals, reminders, and
+        subscription access information primarily on the user's device.
+      </p>
+
+      <h2>What we collect</h2>
+      <ul>
+        <li>Meal entries, calorie and protein targets, reminder preferences, and language/settings choices stored on-device.</li>
+        <li>An installation identifier used only to associate subscriptions with the device through the billing provider.</li>
+        <li>An optional phone number entered by the user for early-access matching. This is stored locally on the device if a match succeeds.</li>
+      </ul>
+
+      <h2>What we do not collect</h2>
+      <ul>
+        <li>No contacts, location, camera, microphone, photos, or background analytics are collected by this app.</li>
+        <li>No nutrition logs are sent to a remote backend as part of the core tracking flow.</li>
+        <li>No advertising SDKs are included.</li>
+      </ul>
+
+      <h2>Third-party services</h2>
+      <ul>
+        <li>Apple App Store and Google Play may process payment information when a user subscribes.</li>
+        <li>RevenueCat is used to validate subscription entitlements and synchronize purchase status across stores.</li>
+        <li>Local notifications are used only for reminder scheduling on the device.</li>
+      </ul>
+
+      <h2>How data is used</h2>
+      <ul>
+        <li>Local nutrition and settings data are used to power the food log, goals, reminders, and statistics screens.</li>
+        <li>Subscription data are used only to determine whether premium access should be unlocked.</li>
+        <li>Early-access phone numbers are used only to compare against the bundled early-access list.</li>
+      </ul>
+
+      <h2>Retention and deletion</h2>
+      <p>
+        Local app data remain on the device until the user clears app storage, removes the app, or overwrites the
+        data. Early-access access is revoked automatically if the phone number is removed from the bundled
+        <code>assets/early-access.json</code> file in a future release.
+      </p>
+
+      <h2>Security</h2>
+      <p>
+        The app stores its local database in browser/app storage and supports encrypted storage with integrity checks
+        through the app's existing secure-storage flow. Subscription validation is delegated to the store billing flow
+        and RevenueCat entitlement verification. No client-only app can guarantee absolute protection against reverse
+        engineering or tampering.
+      </p>
+
+      <h2>Your choices</h2>
+      <ul>
+        <li>You can disable reminders at any time in Settings.</li>
+        <li>You can cancel subscriptions through the App Store or Google Play before renewal.</li>
+        <li>You can remove local data by clearing app storage or uninstalling the app.</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>
+        Before publishing, replace the support contact with a real support address. Current placeholder:
+        <strong>support@example.com</strong>
+      </p>
+    </section>
+  </main>
+</body>
+</html>
