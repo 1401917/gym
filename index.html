@@ -138,23 +138,9 @@
   <main class="screen active" id="screen-home">
     <section class="hero-panel hero-panel-compact glass-card">
       <div class="hero-copy">
-        <span class="hero-chip" data-i18n="home.heroChip">Fitness</span>
-        <h1 class="hero-title" data-i18n="home.title">שלום ספורטאי</h1>
-        <p class="hero-subtitle" id="homeMotivation">Set manual protein and calorie targets to see cleaner progress on the home screen.</p>
-        <div class="hero-marketing-callout">
-          <span class="hero-marketing-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="2.5" width="16" height="19" rx="3"></rect>
-              <line x1="8" y1="7.5" x2="16" y2="7.5"></line>
-              <line x1="8" y1="12" x2="12" y2="12"></line>
-              <line x1="14" y1="12" x2="16" y2="12"></line>
-              <line x1="8" y1="16.5" x2="11" y2="16.5"></line>
-            </svg>
-          </span>
-          <strong data-i18n="home.calculatorBadge">Daily protein and calorie calculator</strong>
-        </div>
+        <h1 class="hero-title" data-i18n="home.title">Daily protein and calorie calculator</h1>
         <div class="hero-actions">
-          <button class="btn-primary btn-large" onclick="document.getElementById('quickAddModal').classList.add('open')" data-i18n="home.addFood">Add food</button>
+          <button class="btn-primary btn-primary-strong btn-large" onclick="window.openQuickAddModal ? window.openQuickAddModal() : document.getElementById('quickAddModal').classList.add('open')" data-i18n="home.addFood">Add food</button>
         </div>
       </div>
 
@@ -173,7 +159,7 @@
                 stroke-dasharray="263.9"
                 stroke-dashoffset="263.9"
                 stroke-linecap="round"
-                style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .7s ease"
+                style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .7s ease, stroke .5s ease"
                 id="homeProteinRingCircle"
               ></circle>
             </svg>
@@ -183,7 +169,14 @@
             </div>
           </div>
           <div class="hero-progress-copy">
-            <strong id="homeProteinRingValue">0g</strong>
+            <div class="hero-progress-stat">
+              <span class="hero-progress-stat-label" data-i18n="home.proteinConsumedLabel">Protein consumed</span>
+              <strong class="hero-progress-stat-value" id="homeProteinConsumed">0g</strong>
+            </div>
+            <div class="hero-progress-stat">
+              <span class="hero-progress-stat-label" data-i18n="home.proteinTargetLabel">Protein target</span>
+              <strong class="hero-progress-stat-value" id="homeProteinTarget">—</strong>
+            </div>
             <span id="homeProteinRingMeta">Set a manual protein target</span>
             <div class="hero-progress-meter" aria-hidden="true">
               <span class="hero-progress-meter-fill hero-progress-meter-fill-protein" id="homeProteinMeter"></span>
@@ -205,7 +198,7 @@
                 stroke-dasharray="263.9"
                 stroke-dashoffset="263.9"
                 stroke-linecap="round"
-                style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .7s ease"
+                style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .7s ease, stroke .5s ease"
                 id="homeCalorieRingCircle"
               ></circle>
             </svg>
@@ -215,7 +208,14 @@
             </div>
           </div>
           <div class="hero-progress-copy">
-            <strong id="homeCalorieRingValue">0</strong>
+            <div class="hero-progress-stat">
+              <span class="hero-progress-stat-label" data-i18n="home.calorieConsumedLabel">Calories consumed</span>
+              <strong class="hero-progress-stat-value" id="homeCalorieConsumed">0</strong>
+            </div>
+            <div class="hero-progress-stat">
+              <span class="hero-progress-stat-label" data-i18n="home.calorieTargetLabel">Calorie target</span>
+              <strong class="hero-progress-stat-value" id="homeCalorieTarget">—</strong>
+            </div>
             <span id="homeCalorieRingMeta">Set a manual calorie target</span>
             <div class="hero-progress-meter" aria-hidden="true">
               <span class="hero-progress-meter-fill hero-progress-meter-fill-calorie" id="homeCalorieMeter"></span>
@@ -241,11 +241,11 @@
     </section>
   </main>
 
-  <div class="modal-overlay" id="quickAddModal" onclick="if (event.target === this) this.classList.remove('open')">
+  <div class="modal-overlay" id="quickAddModal" onclick="if (event.target === this) { window.closeQuickAddModal ? window.closeQuickAddModal() : this.classList.remove('open'); }">
     <div class="modal-sheet">
       <div class="modal-header">
         <h3 class="modal-title" data-i18n="food.addTitle">Add food</h3>
-        <button class="modal-close" onclick="document.getElementById('quickAddModal').classList.remove('open')">
+        <button class="modal-close" onclick="window.closeQuickAddModal ? window.closeQuickAddModal() : document.getElementById('quickAddModal').classList.remove('open')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -487,11 +487,6 @@
       </div>
     </section>
 
-    <input type="hidden" id="settingLanguage" value="he" />
-    <input type="hidden" id="settingLanguageSearch" value="" />
-    <div id="languageCurrentBadge" hidden></div>
-    <div id="languageOptionsList" hidden></div>
-
     <section class="panel glass-card">
       <div class="panel-header panel-header-stack">
         <div>
@@ -648,6 +643,11 @@
             <label class="form-label" data-i18n="settings.dailyCalories">Daily calorie target</label>
             <input type="number" id="settingCalorieGoal" class="form-input" placeholder="2200" min="0" />
           </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="settingCalorieOvershoot" data-i18n="settings.calorieOvershoot">Maximum allowed calorie overshoot</label>
+          <input type="number" id="settingCalorieOvershoot" class="form-input" placeholder="200" min="0" max="5000" />
+          <p class="settings-note" data-i18n="settings.calorieOvershootNote">Above this overshoot, the calorie ring turns red. Between 0 and this value, it shifts gradually from green to orange.</p>
         </div>
         <p class="settings-note" data-i18n="settings.manualTargetsNote">These are the values shown on the home screen against what you actually ate.</p>
       </div>

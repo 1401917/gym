@@ -5,6 +5,7 @@ import {
   buildDatabaseSnapshot,
   createDefaultDatabase,
   extractStateFromDatabase,
+  mergeRecentFoods,
   normalizeDatabasePayload,
 } from '../scripts/database.js';
 
@@ -49,6 +50,7 @@ test('normalizeDatabasePayload migrates a legacy state payload', () => {
   assert.equal(payload.schemaVersion, 1);
   assert.equal(hydratedState.recentFoods.length, 1);
   assert.equal(hydratedState.recentFoods[0].name, 'Tuna toast');
+  assert.equal(hydratedState.recentFoods[0].usageCount, 1);
 });
 
 test('buildDatabaseSnapshot keeps recent foods deduped across repeated saves', () => {
@@ -66,6 +68,60 @@ test('buildDatabaseSnapshot keeps recent foods deduped across repeated saves', (
   assert.equal(firstSnapshot.collections.recentFoods.length, 1);
   assert.equal(secondSnapshot.collections.recentFoods.length, 1);
   assert.equal(secondSnapshot.collections.recentFoods[0].name, 'Greek yogurt');
+  assert.equal(secondSnapshot.collections.recentFoods[0].usageCount, 1);
+});
+
+test('buildDatabaseSnapshot prioritizes frequently reused foods before one-off foods', () => {
+  const defaultState = createDefaultState();
+  let previousSnapshot = createDefaultDatabase(defaultState);
+
+  const snapshots = [
+    [{ name: 'Chicken breast', protein: 45, calories: 300 }],
+    [
+      { name: 'Chicken breast', protein: 45, calories: 300 },
+      { name: 'Apple', protein: 0, calories: 95 },
+    ],
+    [
+      { name: 'Chicken breast', protein: 45, calories: 300 },
+      { name: 'Apple', protein: 0, calories: 95 },
+      { name: 'Cottage cheese', protein: 15, calories: 120 },
+    ],
+    [
+      { name: 'Chicken breast', protein: 45, calories: 300 },
+      { name: 'Apple', protein: 0, calories: 95 },
+      { name: 'Cottage cheese', protein: 15, calories: 120 },
+      { name: 'Chicken breast', protein: 45, calories: 300 },
+    ],
+  ];
+
+  for (const logItems of snapshots) {
+    previousSnapshot = buildDatabaseSnapshot({
+      ...defaultState,
+      logItems,
+    }, previousSnapshot, defaultState);
+  }
+
+  const recentFoods = previousSnapshot.collections.recentFoods;
+  assert.equal(recentFoods[0].name, 'Chicken breast');
+  assert.equal(recentFoods[0].usageCount, 2);
+  assert.equal(recentFoods[1].name, 'Cottage cheese');
+  assert.equal(recentFoods[1].usageCount, 1);
+  assert.equal(recentFoods[2].name, 'Apple');
+  assert.equal(recentFoods[2].usageCount, 1);
+});
+
+test('mergeRecentFoods keeps more saved foods than the old small list limit', () => {
+  const foods = Array.from({ length: 40 }, (_, index) => ({
+    name: `Food ${index + 1}`,
+    protein: index,
+    calories: 100 + index,
+    lastUsedAt: new Date(Date.UTC(2026, 0, index + 1)).toISOString(),
+  }));
+
+  const recentFoods = mergeRecentFoods([], foods);
+
+  assert.equal(recentFoods.length, 40);
+  assert.equal(recentFoods[0].name, 'Food 40');
 });
 
 test('buildDatabaseSnapshot tracks stronger save metadata across revisions', () => {

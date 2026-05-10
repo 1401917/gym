@@ -5,13 +5,13 @@ const EMBEDDED_FOOD_SCAN_API_KEY = 'nvapi-IphDan0tpKymhwFcehZOnYFKILRkQaxMUVhG4d
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 const GEMINI_API_KEY_STORAGE_KEY = 'protein-flow-gemini-api-key';
 
-export const NVIDIA_FOOD_SCAN_MODEL = 'moonshotai/kimi-k2.5';
-// Vision-capable fallbacks if primary model doesn't support image input
+export const NVIDIA_FOOD_SCAN_MODEL = 'meta/llama-3.2-11b-vision-instruct';
 export const NVIDIA_FOOD_SCAN_FALLBACK_MODELS = [
-  'meta/llama-3.2-11b-vision-instruct',
   'meta/llama-3.2-90b-vision-instruct',
 ];
 const FOOD_SCAN_MAX_TOKENS = 1200;
+const NUTRIENT_AS_INGREDIENT_PATTERN = /^(calories?|protein|proteins|carbs?|carbohydrates?|fat|fats|fiber|fibre|sugars?|vitamins?\b.*|minerals?\b.*|potassium|sodium|calcium|iron|magnesium|manganese|copper|zinc|folate|water)$/i;
+const PLACEHOLDER_NOTES_PATTERN = /^short note about (?:the|this) estimate\.?$/i;
 
 function clampNumber(value, min, max, fallback = 0) {
   const numeric = Number(value);
@@ -222,9 +222,12 @@ export function buildFoodPhotoPrompt() {
   return [
     'Analyze the food visible in this image.',
     'Estimate the total calories and total protein for the visible serving.',
-    'List the main ingredients you can identify (up to 8 items).',
+    'List only visible food components or ingredients you can identify (up to 8 items).',
+    'Do not list nutrients, vitamins, minerals, or macro categories as ingredients.',
+    'For a single whole food, set ingredients to an array with that food only.',
+    'Do not copy the example values; fill every field for the actual image.',
     'Reply with strict JSON only. No markdown, no extra text.',
-    'Use exactly this shape:',
+    'Use exactly this schema, replacing every sample value:',
     '{"name":"Food name","calories":520,"protein":38,"ingredients":["ingredient 1","ingredient 2"],"confidence":0.85,"notes":"Short note about the estimate"}',
   ].join('\n');
 }
@@ -268,6 +271,23 @@ function isAuthenticationError(error) {
   return /auth|unauthorized|authentication|valid.*api key|api key.*invalid/i.test(message);
 }
 
+function readGeminiCandidateText(data = {}) {
+  const parts = data?.candidates?.[0]?.content?.parts;
+  if (!Array.isArray(parts)) {
+    return '';
+  }
+
+  return parts
+    .map((part) => part?.text || '')
+    .filter(Boolean)
+    .join('\n')
+    .trim();
+}
+
+function isNutrientListedAsIngredient(value) {
+  return NUTRIENT_AS_INGREDIENT_PATTERN.test(String(value || '').trim());
+}
+
 export function normalizeFoodScanResult(result = {}) {
   const name = String(result?.name || '')
     .replace(/\s+/g, ' ')
@@ -282,7 +302,16 @@ export function normalizeFoodScanResult(result = {}) {
   const ingredients = rawIngredients
     .slice(0, 8)
     .map((i) => String(i || '').replace(/\s+/g, ' ').trim())
-    .filter(Boolean);
+    .filter((ingredient) => ingredient && !isNutrientListedAsIngredient(ingredient));
+
+  if (!ingredients.length && rawIngredients.length > 0) {
+    ingredients.push(name);
+  }
+
+  const notes = String(result?.notes || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 240);
 
   return {
     name,
@@ -290,10 +319,7 @@ export function normalizeFoodScanResult(result = {}) {
     protein: Math.round(clampNumber(result?.protein, 0, 1000) * 10) / 10,
     ingredients,
     confidence: Math.round(clampNumber(result?.confidence, 0, 1) * 100) / 100,
-    notes: String(result?.notes || '')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 240),
+    notes: PLACEHOLDER_NOTES_PATTERN.test(notes) ? '' : notes,
   };
 }
 
@@ -385,7 +411,7 @@ async function analyzeWithGemini(imageDataUrl, apiKey, fetchImpl) {
   }
 
   const data = JSON.parse(responseText);
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = readGeminiCandidateText(data);
   if (!text) {
     throw new Error('Gemini returned an empty response. Please try again.');
   }

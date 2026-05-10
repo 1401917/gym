@@ -126,6 +126,48 @@ export function createUI(getState, addItem, deleteItem, showToast) {
     bar.style.width = `${safePercentage}%`;
   }
 
+  function clampPct(value) {
+    return Math.max(0, Math.min(100, Number(value || 0)));
+  }
+
+  function proteinAccentHue(percentage) {
+    return 195 - 53 * (clampPct(percentage) / 100);
+  }
+
+  function proteinRingColor(percentage) {
+    const hue = Math.round(proteinAccentHue(percentage));
+    return `hsl(${hue}, 80%, 60%)`;
+  }
+
+  function proteinMeterGradient(percentage) {
+    const hue = Math.round(proteinAccentHue(percentage));
+    return `linear-gradient(90deg, hsl(${hue}, 80%, 70%), hsl(${(hue + 8) % 360}, 75%, 55%))`;
+  }
+
+  function calorieAccentHue(totalCalories, calorieTarget, overshootMax) {
+    if (!calorieTarget) return 32;
+    if (totalCalories <= calorieTarget) return 142;
+    const over = totalCalories - calorieTarget;
+    const max = Math.max(1, Number(overshootMax) || 200);
+    const ratio = Math.min(1, over / max);
+    return 35 - 35 * ratio;
+  }
+
+  function calorieRingColor(totalCalories, calorieTarget, overshootMax) {
+    if (!calorieTarget) return '#fdba74';
+    if (totalCalories <= calorieTarget) return 'hsl(142, 65%, 50%)';
+    const hue = Math.round(calorieAccentHue(totalCalories, calorieTarget, overshootMax));
+    const lightness = Math.round(56 - 6 * ((35 - hue) / 35));
+    return `hsl(${hue}, 90%, ${lightness}%)`;
+  }
+
+  function calorieMeterGradient(totalCalories, calorieTarget, overshootMax) {
+    if (!calorieTarget) return 'linear-gradient(90deg, #fdba74, #f97316)';
+    if (totalCalories <= calorieTarget) return 'linear-gradient(90deg, hsl(142, 70%, 60%), hsl(150, 70%, 45%))';
+    const hue = Math.round(calorieAccentHue(totalCalories, calorieTarget, overshootMax));
+    return `linear-gradient(90deg, hsl(${hue}, 90%, 60%), hsl(${Math.max(0, hue - 10)}, 90%, 48%))`;
+  }
+
   function buildQuickCard(food) {
     const label = food.nameKey ? t(food.nameKey) : food.name;
     const btn = document.createElement('button');
@@ -153,7 +195,7 @@ export function createUI(getState, addItem, deleteItem, showToast) {
       ...food,
       recent: true,
     }));
-    const allFoods = [...recentFoods, ...quickFoods].filter((food, index, list) => {
+    const allFoods = recentFoods.filter((food, index, list) => {
       const label = food.nameKey ? t(food.nameKey) : food.name;
       return list.findIndex((candidate) => {
         const candidateLabel = candidate.nameKey ? t(candidate.nameKey) : candidate.name;
@@ -300,6 +342,7 @@ export function createUI(getState, addItem, deleteItem, showToast) {
     const caloriePercentage = calorieTarget ? Math.min(100, Math.round((totalCalories / calorieTarget) * 100)) : 0;
     const proteinRemaining = target ? Math.max(0, target - totalProtein) : null;
     const calorieRemaining = calorieTarget ? Math.max(0, calorieTarget - totalCalories) : null;
+    const calorieOvershootMax = Math.max(0, Number(settings.calorieOvershoot ?? 200) || 200);
 
     const entryMap = new Map();
     const currentEntry = {
@@ -341,29 +384,10 @@ export function createUI(getState, addItem, deleteItem, showToast) {
       caloriePercentage,
       proteinRemaining,
       calorieRemaining,
+      calorieOvershootMax,
       itemCount: items.length,
       timelineEntries,
     };
-  }
-
-  function buildMotivation(stats) {
-    if (!stats.target && !stats.calorieTarget) {
-      return t('home.motivation.noTargets');
-    }
-
-    if (stats.itemCount === 0) {
-      return t('home.motivation.noItems');
-    }
-
-    if ((stats.target && stats.proteinPercentage >= 100) && (!stats.calorieTarget || stats.caloriePercentage >= 100)) {
-      return t('home.motivation.complete');
-    }
-
-    if (stats.target && stats.proteinPercentage >= 75) {
-      return t('home.motivation.almost');
-    }
-
-    return t('home.motivation.progress');
   }
 
   function buildHistoryEntries(stats) {
@@ -634,28 +658,32 @@ export function createUI(getState, addItem, deleteItem, showToast) {
 
   function renderStats() {
     const stats = getComputedStats();
-    const homeMotivation = el('homeMotivation');
     const homeMealsBadge = el('homeMealsBadge');
 
     const proteinRing = el('homeProteinRingCircle');
     const proteinPct = el('homeProteinRingPct');
-    const proteinValue = el('homeProteinRingValue');
+    const proteinConsumed = el('homeProteinConsumed');
+    const proteinTarget = el('homeProteinTarget');
     const proteinMeta = el('homeProteinRingMeta');
     const proteinMeter = el('homeProteinMeter');
 
     const calorieRing = el('homeCalorieRingCircle');
     const caloriePct = el('homeCalorieRingPct');
-    const calorieValue = el('homeCalorieRingValue');
+    const calorieConsumed = el('homeCalorieConsumed');
+    const calorieTargetEl = el('homeCalorieTarget');
     const calorieMeta = el('homeCalorieRingMeta');
     const calorieMeter = el('homeCalorieMeter');
 
-    if (homeMotivation) homeMotivation.textContent = buildMotivation(stats);
     if (homeMealsBadge) homeMealsBadge.textContent = tp('home.meals', stats.itemCount, { count: stats.itemCount });
 
     setRingProgress(proteinRing, stats.proteinPercentage);
     setMeterProgress(proteinMeter, stats.proteinPercentage);
+    const proteinColor = proteinRingColor(stats.proteinPercentage);
+    if (proteinRing) proteinRing.setAttribute('stroke', proteinColor);
+    if (proteinMeter) proteinMeter.style.background = proteinMeterGradient(stats.proteinPercentage);
     if (proteinPct) proteinPct.textContent = `${stats.proteinPercentage}%`;
-    if (proteinValue) proteinValue.textContent = stats.target ? `${stats.totalProtein} / ${stats.target}g` : `${stats.totalProtein}g`;
+    if (proteinConsumed) proteinConsumed.textContent = `${stats.totalProtein}g`;
+    if (proteinTarget) proteinTarget.textContent = stats.target ? `${stats.target}g` : '—';
     if (proteinMeta) {
       proteinMeta.textContent = stats.target
         ? (stats.proteinRemaining && stats.proteinRemaining > 0
@@ -666,11 +694,17 @@ export function createUI(getState, addItem, deleteItem, showToast) {
 
     setRingProgress(calorieRing, stats.caloriePercentage);
     setMeterProgress(calorieMeter, stats.caloriePercentage);
+    const calorieColor = calorieRingColor(stats.totalCalories, stats.calorieTarget, stats.calorieOvershootMax);
+    if (calorieRing) calorieRing.setAttribute('stroke', calorieColor);
+    if (calorieMeter) calorieMeter.style.background = calorieMeterGradient(stats.totalCalories, stats.calorieTarget, stats.calorieOvershootMax);
     if (caloriePct) caloriePct.textContent = `${stats.caloriePercentage}%`;
-    if (calorieValue) {
-      calorieValue.textContent = stats.calorieTarget
-        ? t('home.calorieValue.withTarget', { total: stats.totalCalories, target: stats.calorieTarget })
-        : t('home.calorieValue.noTarget', { total: stats.totalCalories });
+    if (calorieConsumed) {
+      calorieConsumed.textContent = t('home.calorieValue.noTarget', { total: stats.totalCalories });
+    }
+    if (calorieTargetEl) {
+      calorieTargetEl.textContent = stats.calorieTarget
+        ? t('home.calorieValue.noTarget', { total: stats.calorieTarget })
+        : '—';
     }
     if (calorieMeta) {
       calorieMeta.textContent = stats.calorieTarget

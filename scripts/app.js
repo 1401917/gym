@@ -18,7 +18,7 @@ import { calculateTarget } from './engine.js';
 import { setupInstallPrompt, registerServiceWorker } from './pwa.js?v=20260325';
 import { syncReminderSchedule } from './reminders.js';
 import { getCurrentTrackingDayStamp, getNextAutomaticResetDate, isAutomaticResetEnabled } from './day-reset.js';
-import { applyLanguage, DEFAULT_LANGUAGE, getLanguageMeta, getLanguageOptions, t } from './i18n.js';
+import { applyLanguage, DEFAULT_LANGUAGE, getLanguageMeta, t } from './i18n.js';
 import {
   buildAccessSnapshot,
   buildStoredAccessState,
@@ -439,6 +439,99 @@ const chat = createChat(
 );
 window.chat = chat;
 
+const MODAL_HISTORY_STATE_KEY = 'proteinFlowModalId';
+let modalHistoryBackInProgress = false;
+
+function pushModalHistory(modalId, modal) {
+  if (!window.history?.pushState || window.history.state?.[MODAL_HISTORY_STATE_KEY] === modalId) {
+    return;
+  }
+
+  try {
+    const currentState = window.history.state && typeof window.history.state === 'object'
+      ? window.history.state
+      : {};
+
+    window.history.pushState({
+      ...currentState,
+      [MODAL_HISTORY_STATE_KEY]: modalId,
+    }, '', window.location.href);
+    modal.dataset.modalHistoryEntry = 'true';
+  } catch (error) {
+    console.warn('Could not add modal history entry.', error);
+  }
+}
+
+function openAppModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return false;
+
+  const wasOpen = modal.classList.contains('open');
+  modal.classList.add('open');
+
+  if (!wasOpen) {
+    pushModalHistory(modalId, modal);
+  }
+
+  return true;
+}
+
+function closeAppModal(modalId, { fromHistory = false } = {}) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return false;
+
+  const wasOpen = modal.classList.contains('open');
+  const shouldPopHistory = !fromHistory
+    && modal.dataset.modalHistoryEntry === 'true'
+    && window.history?.state?.[MODAL_HISTORY_STATE_KEY] === modalId;
+
+  modal.classList.remove('open');
+  delete modal.dataset.modalHistoryEntry;
+
+  if (wasOpen && shouldPopHistory) {
+    modalHistoryBackInProgress = true;
+    window.history.back();
+  }
+
+  return wasOpen;
+}
+
+function closeTopOpenModalFromHistory() {
+  const openModals = Array.from(document.querySelectorAll('.modal-overlay.open'));
+  const modal = openModals[openModals.length - 1];
+
+  if (!modal?.id) {
+    return false;
+  }
+
+  return closeAppModal(modal.id, { fromHistory: true });
+}
+
+function openQuickAddModal() {
+  return openAppModal('quickAddModal');
+}
+
+function closeQuickAddModal(options) {
+  return closeAppModal('quickAddModal', options);
+}
+
+window.openQuickAddModal = openQuickAddModal;
+window.closeQuickAddModal = closeQuickAddModal;
+
+function wireModalBackHandling() {
+  if (document.body.dataset.wiredModalBackHandling) return;
+
+  document.body.dataset.wiredModalBackHandling = '1';
+  window.addEventListener('popstate', () => {
+    if (modalHistoryBackInProgress) {
+      modalHistoryBackInProgress = false;
+      return;
+    }
+
+    closeTopOpenModalFromHistory();
+  });
+}
+
 async function addItem(item) {
   if (accessSnapshot.locked) {
     renderAccessViews();
@@ -728,7 +821,7 @@ function wireFoodPhotoScan() {
         document.getElementById('modalFoodName').value = '';
         document.getElementById('modalFoodProtein').value = '';
         document.getElementById('modalFoodCalories').value = '';
-        document.getElementById('quickAddModal').classList.remove('open');
+        closeQuickAddModal();
         clearFoodPhotoSelection();
         analyzeBtn._lastScanResult = null;
         ui.showToastUI(getFoodScanCopy('addedToast', { name: result.name }));
@@ -1190,10 +1283,10 @@ function populateSettingsForm() {
     settingAnimations: settings.animations || 'full',
     settingProteinGoal: settings.proteinGoal || '',
     settingCalorieGoal: settings.calorieGoal || '',
+    settingCalorieOvershoot: settings.calorieOvershoot ?? 200,
     settingReminderTime: settings.reminderTime || '19:00',
     settingResetMode: settings.resetMode || 'auto',
     settingResetTime: settings.resetTime || '00:00',
-    settingLanguage: settings.language || DEFAULT_LANGUAGE,
     settingGoalGender: settings.goalGender || 'male',
     settingGoalAge: settings.goalAge || '25',
     settingGoalHeight: settings.goalHeight || '170',
@@ -1218,7 +1311,6 @@ function populateSettingsForm() {
     reminderEnabled.checked = Boolean(settings.reminderEnabled);
   }
 
-  renderLanguageOptions(document.getElementById('settingLanguageSearch')?.value || '');
   renderReminderStatus();
   renderResetControls(settings);
   renderAccessViews();
@@ -1241,7 +1333,6 @@ function refreshAppView() {
   ui.renderAll();
   restoreGoalSummary();
   renderGoalProfileSummary();
-  renderLanguageOptions(document.getElementById('settingLanguageSearch')?.value || '');
   renderReminderStatus();
   renderResetControls();
 }
@@ -1308,56 +1399,7 @@ function getSettingsInputs() {
     activityLevel: document.getElementById('settingGoalActivity')?.value || current.activityLevel || 'moderate',
     proteinGoal: normalizeGoalValue(document.getElementById('settingProteinGoal')?.value || ''),
     calorieGoal: normalizeGoalValue(document.getElementById('settingCalorieGoal')?.value || ''),
-  });
-}
-
-function renderLanguageOptions(query = '') {
-  const list = document.getElementById('languageOptionsList');
-  const badge = document.getElementById('languageCurrentBadge');
-  const hiddenInput = document.getElementById('settingLanguage');
-  if (!list || !hiddenInput) return;
-
-  const activeCode = hiddenInput.value || state.settings?.language || DEFAULT_LANGUAGE;
-  const normalizedQuery = String(query || '').trim().toLowerCase();
-  const options = getLanguageOptions().filter((option) => {
-    if (!normalizedQuery) return true;
-    return [option.code, option.englishName, option.nativeName]
-      .join(' ')
-      .toLowerCase()
-      .includes(normalizedQuery);
-  });
-
-  list.innerHTML = '';
-  options.forEach((option) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `language-option${option.code === activeCode ? ' active' : ''}`;
-    button.innerHTML = `
-      <strong>${option.nativeName}</strong>
-      <span>${option.englishName}</span>
-    `;
-    button.addEventListener('click', () => {
-      hiddenInput.value = option.code;
-      const nextSettings = getSettingsInputs();
-      setState({ settings: nextSettings });
-      refreshAppView();
-      populateSettingsForm();
-      ui.showToastUI(t('settings.language.changed', { language: option.nativeName }));
-    });
-    list.appendChild(button);
-  });
-
-  const activeMeta = getLanguageMeta(activeCode);
-  if (badge) badge.textContent = activeMeta.nativeName;
-}
-
-function wireLanguagePicker() {
-  const input = document.getElementById('settingLanguageSearch');
-  if (!input || input.dataset.wired) return;
-
-  input.dataset.wired = '1';
-  input.addEventListener('input', () => {
-    renderLanguageOptions(input.value);
+    calorieOvershoot: document.getElementById('settingCalorieOvershoot')?.value ?? current.calorieOvershoot ?? 200,
   });
 }
 
@@ -1531,7 +1573,7 @@ function wireModalAdd() {
     document.getElementById('modalFoodName').value = '';
     document.getElementById('modalFoodProtein').value = '';
     document.getElementById('modalFoodCalories').value = '';
-    document.getElementById('quickAddModal').classList.remove('open');
+    closeQuickAddModal();
     ui.showToastUI(t('food.toast.added', { name }));
   });
 }
@@ -1798,8 +1840,8 @@ async function runStartupExperience() {
 }
 
 async function init() {
+  wireModalBackHandling();
   wireNavigationDrawer();
-  wireLanguagePicker();
   wireGoalDraftPersistence();
   wireResetControls();
   wireFoodPhotoScan();

@@ -2,7 +2,7 @@ import { sanitizeSettings } from './validation.js';
 import { sanitizeAccessState } from './access.js';
 
 export const DATABASE_SCHEMA_VERSION = 1;
-const MAX_RECENT_FOODS = 16;
+const MAX_RECENT_FOODS = 60;
 
 function normalizeNumber(value) {
   const numeric = Number(value);
@@ -35,7 +35,9 @@ function normalizeRecentFoodEntry(entry, fallbackTimestamp) {
     nameKey: normalizedNameKey,
     protein: Math.max(0, normalizeNumber(entry.protein)),
     calories: Math.max(0, normalizeNumber(entry.calories)),
+    usageCount: Math.max(1, normalizeCount(entry.usageCount, 1)),
     lastUsedAt: normalizeTimestamp(entry.lastUsedAt, fallbackTimestamp),
+    lastUsedOrder: normalizeCount(entry.lastUsedOrder, 0),
   };
 }
 
@@ -77,6 +79,7 @@ function extractRecentFoodUpdates(previousLogItems = [], currentLogItems = [], s
 
     updates.push({
       ...entry.item,
+      usageCount: entry.count - previousCount,
       lastUsedAt: savedAt,
     });
   }
@@ -84,21 +87,73 @@ function extractRecentFoodUpdates(previousLogItems = [], currentLogItems = [], s
   return updates;
 }
 
-export function mergeRecentFoods(existingEntries = [], newEntries = []) {
+function compareRecentFoods(left, right) {
+  const leftRecurring = Number(left.usageCount || 0) > 1;
+  const rightRecurring = Number(right.usageCount || 0) > 1;
+
+  if (leftRecurring !== rightRecurring) {
+    return leftRecurring ? -1 : 1;
+  }
+
+  if (leftRecurring && rightRecurring && left.usageCount !== right.usageCount) {
+    return right.usageCount - left.usageCount;
+  }
+
+  const dateDifference = new Date(right.lastUsedAt) - new Date(left.lastUsedAt);
+  if (dateDifference !== 0) {
+    return dateDifference;
+  }
+
+  return Number(right.lastUsedOrder || 0) - Number(left.lastUsedOrder || 0);
+}
+
+export function mergeRecentFoods(existingEntries = [], newEntries = [], { incrementUsage = true } = {}) {
   const fallbackTimestamp = new Date().toISOString();
   const recentFoods = new Map();
+  let nextLastUsedOrder = 1;
 
-  for (const entry of [...existingEntries, ...newEntries]) {
+  for (const entry of existingEntries) {
     const normalizedEntry = normalizeRecentFoodEntry(entry, fallbackTimestamp);
     if (!normalizedEntry) {
       continue;
     }
 
     recentFoods.set(buildFoodKey(normalizedEntry), normalizedEntry);
+    nextLastUsedOrder = Math.max(nextLastUsedOrder, normalizedEntry.lastUsedOrder + 1);
+  }
+
+  for (const entry of newEntries) {
+    const normalizedBaseEntry = normalizeRecentFoodEntry(entry, fallbackTimestamp);
+    if (!normalizedBaseEntry) {
+      continue;
+    }
+
+    const normalizedEntry = {
+      ...normalizedBaseEntry,
+      lastUsedOrder: normalizeCount(entry?.lastUsedOrder, nextLastUsedOrder),
+    };
+
+    nextLastUsedOrder = Math.max(nextLastUsedOrder, normalizedEntry.lastUsedOrder + 1);
+    const key = buildFoodKey(normalizedEntry);
+    const existingEntry = recentFoods.get(key);
+
+    if (!existingEntry) {
+      recentFoods.set(key, normalizedEntry);
+      continue;
+    }
+
+    if (incrementUsage) {
+      recentFoods.set(key, {
+        ...existingEntry,
+        ...normalizedEntry,
+        usageCount: existingEntry.usageCount + normalizedEntry.usageCount,
+        lastUsedAt: normalizedEntry.lastUsedAt,
+      });
+    }
   }
 
   return [...recentFoods.values()]
-    .sort((left, right) => new Date(right.lastUsedAt) - new Date(left.lastUsedAt))
+    .sort(compareRecentFoods)
     .slice(0, MAX_RECENT_FOODS);
 }
 
@@ -252,11 +307,15 @@ export function normalizeDatabasePayload(payload, defaultState) {
   }
 
   const normalizedState = normalizeStateRecord(payload.state, defaultState);
+  const storedRecentFoods = payload.collections?.recentFoods || [];
+
   return {
     schemaVersion: DATABASE_SCHEMA_VERSION,
     savedAt: payload.savedAt || null,
     collections: {
-      recentFoods: mergeRecentFoods(payload.collections?.recentFoods || [], normalizedState.logItems),
+      recentFoods: mergeRecentFoods(storedRecentFoods, normalizedState.logItems, {
+        incrementUsage: storedRecentFoods.length === 0,
+      }),
     },
     meta: normalizeDatabaseMeta(payload.meta || {}, normalizedState),
     state: stripDerivedState(normalizedState),

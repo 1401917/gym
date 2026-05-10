@@ -48,5 +48,7 @@ export function sanitizeSettings(settings) {
   safe.reminderTime = normalizeReminderTime(safe.reminderTime);
   safe.resetMode = normalizeResetMode(safe.resetMode || DEFAULT_RESET_MODE);
   safe.resetTime = normalizeResetTime(safe.resetTime || DEFAULT_RESET_TIME);
+  const overshoot = Number(safe.calorieOvershoot);
+  safe.calorieOvershoot = Number.isFinite(overshoot) ? Math.max(0, Math.min(5000, Math.round(overshoot))) : 200;
   return safe;
 }

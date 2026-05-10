@@ -24,7 +24,7 @@
 | Frontend | Vanilla JavaScript (ES6 Modules) |
 | Mobile | Capacitor 8.2 (Android) |
 | הצפנה | Web Crypto API (AES-256-GCM, PBKDF2) |
-| AI זיהוי אוכל | NVIDIA kimi-k2.5 / Gemini 2.0 Flash |
+| AI זיהוי אוכל | NVIDIA Llama vision / Gemini 2.0 Flash |
 | תשלומים | RevenueCat |
 | PWA | Service Worker + Web App Manifest |
 

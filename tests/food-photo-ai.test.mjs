@@ -74,9 +74,106 @@ test('normalizeFoodScanResult sanitizes nutrition estimates', () => {
     name: 'Chicken bowl',
     calories: 643,
     protein: 38.4,
+    ingredients: [],
     confidence: 0.81,
     notes: 'Portion estimate based on one medium bowl.',
   });
+});
+
+test('normalizeFoodScanResult filters nutrients from ingredient lists', () => {
+  const result = normalizeFoodScanResult({
+    name: 'Banana',
+    calories: 105,
+    protein: 1.3,
+    ingredients: ['Potassium', 'Carbohydrates', 'Fiber', 'Vitamin B6', 'banana'],
+  });
+
+  assert.deepEqual(result.ingredients, ['banana']);
+});
+
+test('normalizeFoodScanResult falls back to the food name when all listed ingredients are nutrients', () => {
+  const result = normalizeFoodScanResult({
+    name: 'Banana',
+    calories: 105,
+    protein: 1.3,
+    ingredients: ['Potassium', 'Carbohydrates', 'Fiber'],
+  });
+
+  assert.deepEqual(result.ingredients, ['Banana']);
+});
+
+test('normalizeFoodScanResult removes placeholder notes copied from the schema', () => {
+  const result = normalizeFoodScanResult({
+    name: 'Banana',
+    calories: 105,
+    protein: 1.3,
+    notes: 'Short note about the estimate',
+  });
+
+  assert.equal(result.notes, '');
+});
+
+test('analyzeFoodPhoto uses the configured Gemini key when provided', async () => {
+  const originalFileReader = globalThis.FileReader;
+
+  class FileReaderMock {
+    constructor() {
+      this.result = null;
+      this.onload = null;
+      this.onerror = null;
+    }
+
+    async readAsDataURL(file) {
+      try {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        this.result = `data:${file.type};base64,${buffer.toString('base64')}`;
+        this.onload?.();
+      } catch (error) {
+        this.onerror?.(error);
+      }
+    }
+  }
+
+  globalThis.FileReader = FileReaderMock;
+  const calls = [];
+
+  try {
+    const file = new File([Buffer.from('test-image')], 'banana.jpg', { type: 'image/jpeg' });
+    const result = await analyzeFoodPhoto({
+      file,
+      geminiApiKey: 'gemini-demo-key',
+      apiKey: 'nvapi-demo-key',
+      fetchImpl: async (url, options) => {
+        calls.push({ url, body: JSON.parse(options.body) });
+        return {
+          ok: true,
+          status: 200,
+          async text() {
+            return JSON.stringify({
+              candidates: [{
+                content: {
+                  parts: [{
+                    text: '{"name":"Banana","calories":105,"protein":1.3,"ingredients":["banana"],"confidence":0.9,"notes":"One medium banana."}',
+                  }],
+                },
+              }],
+            });
+          },
+        };
+      },
+    });
+
+    assert.equal(calls.length, 1);
+    assert.match(calls[0].url, /^https:\/\/generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-2\.0-flash:generateContent\?key=gemini-demo-key$/);
+    assert.equal(calls[0].body.contents[0].parts[1].inline_data.mime_type, 'image/jpeg');
+    assert.equal(result.provider, 'gemini');
+    assert.equal(result.name, 'Banana');
+    assert.equal(result.calories, 105);
+    assert.equal(result.protein, 1.3);
+    assert.deepEqual(result.ingredients, ['banana']);
+  } finally {
+    globalThis.FileReader = originalFileReader;
+  }
 });
 
 test('analyzeFoodPhoto can use the native CapacitorHttp path', async () => {
