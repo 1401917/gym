@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     name: Build Android APK and create GitHub Release
@@ -49,6 +52,13 @@ jobs:
           cp android/app/build/outputs/apk/debug/app-debug.apk proteinflow-${VERSION}.apk
           echo "APK_PATH=proteinflow-${VERSION}.apk" >> $GITHUB_ENV
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Upload APK as workflow artifact (backup)
+        uses: actions/upload-artifact@v4
+        with:
+          name: proteinflow-${{ env.VERSION }}-apk
+          path: ${{ env.APK_PATH }}
+          retention-days: 30
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
