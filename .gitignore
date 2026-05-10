@@ -14,6 +14,8 @@ android/build/
 *.apk
 *.aab
 *.keystore
+# Allow the committed stable debug keystore so all CI builds share one signature
+!android/keystore/debug.keystore
 
 # Capacitor generated web assets (synced from root)
 www/
